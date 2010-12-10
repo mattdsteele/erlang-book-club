@@ -1,0 +1,4 @@
+
+# forget compiler stuff!
+*.beam
+*.*~
