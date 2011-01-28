@@ -5,8 +5,14 @@
 -module(db3).
 -export([new/0, write/2, read/2, match/2, delete/2, destroy/1]).
 -include("Data.hrl").
+-ifdef(debug).
+	-define(DBG(Str, Args), io:format(Str, Args)).
+-else.
+	-define(DBG(Str, Args), ok).
+-endif.
 
 write(Db, Data) ->
+	?DBG("~p:write(Db, ~p) called: ~p~n",[?MODULE_STRING, Data, ?LINE]),	
     #data{key = Key, value = Element} = Data,
     lists:keystore(Key, 1, Db, {Key, Element}).
 

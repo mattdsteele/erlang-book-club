@@ -5,6 +5,7 @@
 -module(db3_server_test).
 -export([test1/0]).
 -include("Data.hrl").
+-define(VALUE(Call), io:format("~p = ~p~n",[??Call, Call])).
 
 % 1> db3_server_test:test1().
 % write(FooBar): ok
@@ -14,6 +15,8 @@
 % ok
 %
 test1() ->
+	?VALUE(length([1,2,3])),
+
     db3_server:start(),
 
     FooBar = #data{key = foo, value = bar},
