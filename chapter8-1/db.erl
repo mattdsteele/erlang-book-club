@@ -1,32 +1,48 @@
+%% Author: Steve
+%% Created: Nov 5, 2010
+%% Description: This is the ORIGINAL db.erl file from chapter 3.
 -module(db).
--export([new/0, destroy/1, write/3, delete/2, read/2, convert/2]).
--vsn(1.2).
 
-new() ->
-     gb_trees:empty().
+%%
+%% Include files
+%%
 
-write(Key, Data, Db) ->
-     gb_trees:insert(Key, Data, Db).
+%%
+%% Exported Functions
+%%
+-export([new/0, destroy/1, write/3, read/2, delete/2, match/2]).
 
-read(Key, Db) ->
-    
-  case gb_trees:lookup(Key, Db) of
-    none         ->
-	  {error, instance};
-          {value, Data} -> {ok, Data}
-  end.
+%%
+%% API Functions
+%%
+new() -> [].
 
 destroy(_Db) -> ok.
 
-delete(Key, Db) -> gb_trees:delete(Key, Db).
+write(Key, Element, Db) ->
+	[{Key, Element}|Db].
 
-convert(dict,Dict) ->
-  dict(dict:fetch_keys(Dict), Dict, new());
-convert(_, Data) ->
-  Data.
+read(Key, [{Key,Element}|_T]) -> 
+	{ok, Element};
+read(_Key, []) ->
+	{error, instance};
+read(Key, [_H|T]) ->
+	read(Key, T).
 
-dict([Key|Tail], Dict, GbTree) ->
-  Data = dict:fetch(Key, Dict),
-  NewGbTree  = gb_trees:insert(Key, Data, GbTree),
-  dict(Tail, Dict, NewGbTree);
-dict([], _, GbTree) -> GbTree.
+delete(Key, [{Key,_Element}|T]) -> T;
+delete(Key, [H|T]) ->
+	[H|delete(Key, T)];
+delete(_Key, []) -> [].
+
+match(Element, Db) ->
+	find(Element, Db, []).
+	
+%%
+%% Local Functions
+%%
+find(Element, [{Key,Element}|T], Found) ->
+	find(Element, T, [Key|Found]);
+find(Element, [_H|T], Found) ->
+	find(Element, T, Found);
+find(_Element, [], Found) -> Found.
+	
