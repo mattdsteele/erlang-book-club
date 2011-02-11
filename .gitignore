@@ -2,3 +2,5 @@
 # forget compiler stuff!
 *.beam
 *.*~
+.DS_Store
+.#*
