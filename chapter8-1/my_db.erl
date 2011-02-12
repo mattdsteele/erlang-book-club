@@ -10,7 +10,7 @@
 %%
 %% Exported Functions
 %%
--export([start/0,stop/0,write/2,delete/1,read/1,match/1]).
+-export([start/0,stop/0,write/2,delete/1,read/1,match/1,code_upgrade/0]).
 -export([server/1]).
 
 %%
@@ -51,6 +51,12 @@ match(Element) ->
   		{reply, Msg} -> Msg
 	end.
 
+code_upgrade() ->
+    my_db_server ! {upgrade, self()},
+    receive
+	{reply, Msg} -> Msg
+    end.
+
 server(Db) -> 
 	receive
 		{write, Key, Element, Source} ->
@@ -69,6 +75,11 @@ server(Db) ->
 			Response = db:match(Element, Db),
 			Source ! {reply, Response},
 			server(Db);
+	        {upgrade, Source} ->
+		        code:load_file(db),
+		        NewDb = db:upgrade(Db),
+		        Source ! {reply, ok},
+		        server(NewDb);
 		{stop, Source} ->
 			Source ! {reply, ok}
 	end.
