@@ -1,7 +1,7 @@
 % Description: this is the NEW db.erl from chapter 8
 
 -module(db).
--export([new/0, destroy/1, write/3, delete/2, read/2, convert/2]).
+-export([new/0, destroy/1, write/3, delete/2, read/2, convert/2, upgrade/1, upgrade/2]).
 -vsn(1.2).
 
 new() ->
@@ -32,3 +32,10 @@ dict([Key|Tail], Dict, GbTree) ->
   NewGbTree  = gb_trees:insert(Key, Data, GbTree),
   dict(Tail, Dict, NewGbTree);
 dict([], _, GbTree) -> GbTree.
+
+upgrade(ListDb) ->
+    upgrade(ListDb, new()).
+upgrade([{K,V}|T], NewDb) ->
+    upgrade(T, write(K, V, NewDb));
+upgrade([], NewDb) ->
+    NewDb.
